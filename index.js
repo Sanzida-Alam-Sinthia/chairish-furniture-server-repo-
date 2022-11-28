@@ -60,21 +60,11 @@ async function run() {
             const result = await productsCollection.insertOne(product);
             res.send(result);
         });
+
+
         app.post('/bookings', async (req, res) => {
             const booking = req.body;
-            // console.log(booking);
-            // const query = {
-            //     appointmentDate: booking.appointmentDate,
-            //     email: booking.email,
-            //     treatment: booking.treatment
-            // }
 
-            // const alreadyBooked = await bookingsCollection.find(query).toArray();
-
-            // if (alreadyBooked.length) {
-            //     const message = `You already have a booking on ${booking.appointmentDate}`
-            //     return res.send({ acknowledged: false, message })
-            // }
             const result = await bookingsCollection.insertOne(booking)
             res.send(result)
         })
@@ -126,13 +116,7 @@ async function run() {
             console.log(user)
             res.send(user);
         })
-        // app.get('/users/seller/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const filter = { _id: ObjectId(id) }
-        //     const query = { id }
-        //     const result = await usersCollection.find(query).toArray();
-        //     res.send(result);
-        // })
+
 
         app.put('/users/admin/:id', async (req, res) => {
             const decodedEmail = req.decoded.email;
@@ -156,14 +140,22 @@ async function run() {
         })
         app.get('/sellerproducts', async (req, res) => {
 
-            // const decodedEmail = req.decoded.email;
 
-            // if (email !== decodedEmail) {
-            //     return res.status(403).send({ message: 'forbidden access' });
-            // }
 
             const query = { sellers_name: req.query.email };
             const bookings = await productsCollection.find(query).toArray();
+            res.send(bookings);
+        })
+        app.get('/allbookings', verifyJWT, async (req, res) => {
+            const email = req.query.email;
+            const decodedEmail = req.decoded.email;
+
+            if (email !== decodedEmail) {
+                return res.status(403).send({ message: 'forbidden access' });
+            }
+
+            const query = { email: req.query.email };
+            const bookings = await bookingsCollection.find(query).toArray();
             res.send(bookings);
         })
 
